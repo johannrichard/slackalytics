@@ -1,31 +1,17 @@
-//Set up Reqs
-var express = require('express');
-var bodyParser = require('body-parser');
+// Slack will send a request for each message sent on any or a specific channel.
+// If trigger word has been configured on Slack, only messages starting with
+// that trigger word will be sent
+
 var request = require('request');
 var qs = require('querystring');
 
-//set up heroku environment variables
-var env_var = {
-	ga_key: process.env.GOOGLE_ANALYTICS_UAID
-};
-
-//Server Details
-var app = express();
-var port = process.env.PORT || 3000;
-
-//Set Body Parser
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-
-//Routes
-app.get('/', function(req, res){
-	res.send('here');
-});
-
-app.post('/collect', function(req, res){
-
+module.exports = function (req, done) {
+  console.log('SLACK_TOKEN: ', req.secrets.SLACK_TOKEN)
+  console.log('slack request: ', req);
+  
+  if(req.secrets.SLACK_TOKEN != req.body.token) {
+    done('Invalid Token', null);
+  }
 	var channel = {
 		id: 	req.body.channel_id,
 		name: 	req.body.channel_name
@@ -39,19 +25,19 @@ app.post('/collect', function(req, res){
 
 	function searchM(regex){
 		var searchStr = msgText.match(regex);
-		if(searchStr != null){
+		if(searchStr !== null){
 			return searchStr.length;
 		}
 		return 0;
-	};
+	}
 
 	function searchS(regex){
 		var searchStr = msgText.split(regex);
-		if(searchStr != undefined){
+		if(searchStr !== undefined){
 			return searchStr.length;
 		}
 		return 0;
-	};
+	}
 
 
 	var wordCount = searchS(/\s+\b/);
@@ -64,7 +50,7 @@ app.post('/collect', function(req, res){
 	//Structure Data
 	var data = {
 		v: 		1,
-		tid: 	env_var.ga_key,
+		tid: 	req.meta.GOOGLE_ANALYTICS_UAID,
 		cid: 	user.id,
 		ds:  	"slack", //data source
 		cs: 	"slack", // campaign source
@@ -93,10 +79,5 @@ app.post('/collect', function(req, res){
 		function(error, resp, body){
 		console.log(error);
 	})
-	res.send("OK")
-});
-
-//Start Server
-app.listen(port, function () {
-	console.log('Listening on port ' + port); 
-});
+	done(null, { text: 'OK' });
+};
