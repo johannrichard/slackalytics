@@ -79,5 +79,7 @@ module.exports = function (req, done) {
 		function(error, resp, body){
 		console.log(error);
 	})
+	
+	// Return nothing, otherwise the Webhook might be auto-triggered again
 	done(null, null);
 };
