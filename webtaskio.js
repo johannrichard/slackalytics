@@ -79,5 +79,5 @@ module.exports = function (req, done) {
 		function(error, resp, body){
 		console.log(error);
 	})
-	done(null, { text: 'OK' });
+	done(null, null);
 };
