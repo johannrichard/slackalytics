@@ -1,14 +1,14 @@
 // Slack will send a request for each message sent on any or a specific channel.
-// If trigger word has been configured on Slack, only messages starting with
-// that trigger word will be sent
+// In order for the webtask (http://webtask.io) to run properly, you have to define 
+// two variables in your webtask.io:
+
+// SLACK_TOKEN (As a key:value pair "Secrets", take this from your Slack integration)
+// GOOGLE_ANALYTICS_UAID (As a key:value pair in "Meta", take this from your Google Analytics account)
 
 var request = require('request');
 var qs = require('querystring');
 
 module.exports = function (req, done) {
-  console.log('SLACK_TOKEN: ', req.secrets.SLACK_TOKEN)
-  console.log('slack request: ', req);
-  
   if(req.secrets.SLACK_TOKEN != req.body.token) {
     done('Invalid Token', null);
   }
